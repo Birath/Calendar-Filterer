@@ -1,13 +1,18 @@
 from flask import Flask, render_template, request, jsonify, redirect, session
 from filterer import create_google_calendar_from_ical_url
 from authorize_gcal import create_authorization_url, get_credentials
+from gcal_communication import get_calendar_list
 
 app = Flask(__name__)
-
+app.config.from_object('config.DevelopmentConfig')
 
 @app.route('/')
-def hello_world():
-    return render_template('index.html')
+def render_main():
+    if session.get('credentials'):
+        calendar_list = get_calendar_list(session['credentials'])
+        return render_template('index.html', calendars=calendar_list)
+    else:
+        return render_template('index.html')
 
 
 @app.route('/filterer_test', methods=['POST', 'GET'])

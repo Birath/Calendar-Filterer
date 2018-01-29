@@ -1,64 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>LIU Calendar Filterer</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-alpha.3/css/materialize.min.css">-->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/materialize.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <meta charset="UTF-8">
+  <title>LIU Calendar Filterer</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+        rel="stylesheet">
+  <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-alpha.3/css/materialize.min.css">-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/materialize.css') }}">
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="col s12">
-                <h1 class="center-align">Filter your calendars</h1>
-            </div>
-            <div class="col s12 m10 offset-m1 l8 offset-l2">
-                <form id="calender-data row">
-                    <div class="col s6 offset-s3 input-field">
-                        <i class="material-icons prefix">insert_link</i>
-                        <input type="text" name="calendar-url" id="calendar-url">
-                        <label for="calendar-url">Calendar URL</label>
-                    </div>
-
-                    <ul class="collapsible col s12" id="filter-list" >
-                        <li class="active" id="last-filter">
-                            <div class="collapsible-header"><i class="material-icons">filter_list</i>Filter #1</div>
-                            <div class="collapsible-body row filter-body">
-                                <div class="col s6 input-field">
-                                    <input type="text" name="course-code0" id="autocomplete-input0" autocomplete="off" class="autocomplete">
-                                    <label for="autocomplete-input0">Course Code</label>
-                                </div>
-                                <div class="col s6 input-field">
-                                    <input type="text" name="description0" id="description0">
-                                    <label for="description0">Description</label>
-                                </div>
-                                <div class="col s6 input-field">
-                                    <input type="text" name="group-name0" id="group-name0">
-                                    <label for="group-name0">Group Name</label>
-                                </div>
-                                <div class="col s6">
-                                    <button type=button class="btn-flat waves-light waves-effect red white-text delete-btn right"><i class="material-icons left">delete</i>delete filter</button>
-                                </div>
-
-                            </div>
-                        </li>
-                        </li>
-                        <li id="filter-adder">
-                          <div class="add-filter" id="add-filter"><i class="material-icons">add</i>Add filter</div>
-                        </li>
-                    </ul>
-                    <div class="col s12">
-                        <button class="btn  waves-effect waves-light submit-btn" type="submit" id="calender-data-submit">Submit<i class="material-icons right">send</i></button>
-                    </div>
-
-                 </form>
-            </div>
-        </div>
-        <button class="btn" type="submit" id="start-oauth2" onclick="location.href='/start_auth';">Authorize</button>
+<div class="container">
+  <div class="row">
+    <div class="col s12">
+      <h1 class="center-align">Filter your calendars</h1>
     </div>
+    <div class="col s12 m10 offset-m1 l8 offset-l2">
+      <form id="calender-data row">
+        <div class="col s6 offset-s3 input-field">
+          <input type="text" name="calendar-url" id="calendar-url">
+          <label for="calendar-url">Calendar URL</label>
+        </div>
+        <div class="col s12"></div>
+        {% if not calendars %}
+          <div class="col s3">
+            <button class="btn" type="button" id="start-oauth2"
+                    onclick="location.href='/start_auth';">Authorize
+            </button>
+          </div>
+        {% else %}
+          <div class="col s12">
+            <ul class="cal-chooser collection with-header z-depth-1 dropdown-content">
+              <li class="disabled selected" ><span>Choose output calendar</span></li>
+              {% for calendar in calendars %}
+                <li class="collection-item">
+                    <label>
+                      <input name="group1" type="radio"/>
+                      <span>{{ calendar['summary'] }}</span>
+                    </label>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+        <div class="col s12">
+          <ul class="collapsible " id="filter-list">
+            <div class="">
+              <div class="main collapsible-header">
+                <span>Filters</span>
+              </div>
+            </div>
+            <li class="active" id="last-filter">
+              <div class="collapsible-header"><i
+                      class="material-icons">filter_list</i>Filter
+                #1
+              </div>
+              <div class="collapsible-body filter-body">
+                <div class="row">
+                  <div class="col s6 input-field">
+                    <input type="text" name="course-code0"
+                           id="autocomplete-input0"
+                           autocomplete="off"
+                           class="autocomplete">
+                    <label for="autocomplete-input0">Course
+                      Code</label>
+                  </div>
+                  <div class="col s6 input-field">
+                    <input type="text" name="description0"
+                           id="description0">
+                    <label for="description0">Description</label>
+                  </div>
+                  <div class="col s6 input-field">
+                    <input type="text" name="group-name0"
+                           id="group-name0">
+                    <label for="group-name0">Group Name</label>
+                  </div>
+                  <div class="col s6">
+                    <button type="button"
+                            class="btn-flat waves-light waves-effect red white-text delete-btn right">
+                      delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </li>
+            </li>
+            <li id="filter-adder">
+              <div class="add-filter" id="add-filter"><i
+                      class="material-icons">add</i>Add filter
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="col s12">
+          <button class="btn  waves-effect waves-light submit-btn"
+                  type="submit" id="calender-data-submit">Submit<i
+                  class="material-icons right">send</i></button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+</div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 {#<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-alpha.3/js/materialize.min.js"></script>#}

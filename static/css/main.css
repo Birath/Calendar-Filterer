@@ -1,37 +1,58 @@
 .submit-btn {
-    margin: 0 auto;
+  margin: 0 auto;
+}
+
+.cal-chooser {
+  position: relative;
+  margin-top: 0.5rem;
+  opacity: 1;
+  display: block;
 }
 
 /*
  Filter stuff
  */
+.collapsible-header.main {
+  cursor: auto;
+}
+
+.collapsible-header > span {
+  font-size: 16px;
+  color: #26a69a;
+  display: block;
+  line-height: 22px;
+}
+
+.collapsible-header {
+  padding: 14px 16px;
+}
 
 .add-filter {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    line-height: 1.5;
-    padding: 1rem;
-    background-color: #fff;
-    border-bottom: 1px solid #ddd;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1.5;
+  padding: 1rem;
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
 }
 
 .add-filter i {
-    width: 2rem;
-    font-size: 1.6rem;
-    display: inline-block;
-    text-align: center;
-    margin-right: 1rem;
+  width: 2rem;
+  font-size: 1.6rem;
+  display: inline-block;
+  text-align: center;
+  margin-right: 1rem;
 }
 
 .filter-body {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 .delete-btn {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 

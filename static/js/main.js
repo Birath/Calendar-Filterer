@@ -1,9 +1,6 @@
 var elem = document.querySelector('.collapsible');
 var instance = M.Collapsible.init(elem, {});
 
-
-
-
 $('#calender-data').on('submit', function () {
     event.preventDefault();
     console.log('Submitting');
@@ -43,6 +40,8 @@ function updateFilters() {
     var filterID = 0;
     $('#filter-list').children().each(function () {
         var filter = $(this);
+        console.log(filter.prop('tagName'));
+        if (filter.prop("tagName") === 'DIV') return true;
         if (filter.attr('id') !== 'filter-adder') {
             if (filter.children().first().ignore("i").text().indexOf("Filter #" >= 0)) {
                 var visualFilterID = filterID + 1;
@@ -65,22 +64,24 @@ function getFilterBody(filterID) {
     return "" +
     "<li class id=\"last-filter\">\n" +
     "    <div class=\"collapsible-header\"><i class=\"material-icons\">filter_list</i>Filter #"+ filterVisual + "</div>\n" +
-    "    <div class=\"collapsible-body row filter-body\">\n" +
-    "        <div class=\"col s6 input-field\">\n" +
-    "            <input type=\"text\" name=\"course-code"+filterID+"\" id=\"autocomplete-input"+ filterID +"\" autocomplete=\"off\" class=\"autocomplete\">\n" +
-    "            <label for=\"autocomplete-input" +filterID+"\">Course Code</label>\n" +
+    "    <div class=\"collapsible-body filter-body\">\n" +
+    "        <div class=\"row\"> \n" +
+    "           <div class=\"col s6 input-field\">\n" +
+    "               <input type=\"text\" name=\"course-code"+filterID+"\" id=\"autocomplete-input"+ filterID +"\" autocomplete=\"off\" class=\"autocomplete\">\n" +
+    "                   <label for=\"autocomplete-input" +filterID+"\">Course Code</label>\n" +
+    "           </div>\n" +
+    "           <div class=\"col s6 input-field\">\n" +
+    "               <input type=\"text\" name=\"description"+filterID+"\" id=\"description"+ filterID +"\">\n" +
+    "               <label for=\"description" +filterID+ "\">Description</label>\n" +
+    "           </div>\n" +
+    "           <div class=\"col s6 input-field\">\n" +
+    "               <input type=\"text\" name=\"group-name"+filterID+"\" id=\"group-name"+ filterID +"\">\n" +
+    "               <label for=\"group-name"+ filterID +"\">Group Name</label>\n" +
+    "           </div>\n" +
+    "           <div class=\"col s6\">\n" +
+    "               <button type=button class=\"btn-flat waves-light waves-effect red white-text delete-btn right\">delete</button>\n" +
+    "           </div>\n" +
     "        </div>\n" +
-    "        <div class=\"col s6 input-field\">\n" +
-    "            <input type=\"text\" name=\"description"+filterID+"\" id=\"description"+ filterID +"\">\n" +
-    "            <label for=\"description" +filterID+ "\">Description</label>\n" +
-    "        </div>\n" +
-    "        <div class=\"col s6 input-field\">\n" +
-    "            <input type=\"text\" name=\"group-name"+filterID+"\" id=\"group-name"+ filterID +"\">\n" +
-    "            <label for=\"group-name"+ filterID +"\">Group Name</label>\n" +
-    "        </div>\n" +
-    "        <div class=\"col s6\">\n" +
-    "            <button type=button class=\"btn-flat waves-light waves-effect red white-text delete-btn right\"><i class=\"material-icons left\">delete</i>delete filter</button>\n" +
-    "        </div>" +
     "    </div>\n" +
     "</li>";
 }
@@ -103,7 +104,8 @@ $('#add-filter').on('click', function () {
 });
 
 $('body').on('click', '.delete-btn', function () {
-    $(this).parents().eq(2).remove();
+    console.log($(this).parents().eq(2));
+    $(this).parents().eq(3).remove();
     if (filterNum > 0) {
         filterNum--;
     }
