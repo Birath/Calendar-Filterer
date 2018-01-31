@@ -12,7 +12,7 @@ flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         CLIENT_SECRET_FILE,
         scopes=SCOPES
     )
-flow.redirect_uri = 'https://test.birath.org/oauth2callback'
+flow.redirect_uri = 'https://127.0.0.1:5000/oauth2callback'
 
 
 def create_authorization_url():

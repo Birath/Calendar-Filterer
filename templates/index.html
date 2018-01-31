@@ -19,7 +19,7 @@
       <h1 class="center-align">Filter your calendars</h1>
     </div>
     <div class="col s12 m10 offset-m1 l8 offset-l2">
-      <form id="calender-data row">
+      <form method="post" id="calender-data">
         <div class="col s6 offset-s3 input-field">
           <input type="text" name="calendar-url" id="calendar-url">
           <label for="calendar-url">Calendar URL</label>
@@ -34,11 +34,11 @@
         {% else %}
           <div class="col s12">
             <ul class="cal-chooser collection with-header z-depth-1 dropdown-content">
-              <li class="disabled selected" ><span>Choose output calendar</span></li>
+              <li class="cal-chooser-collection-header collection-header disabled selected " ><span>Choose output calendar</span></li>
               {% for calendar in calendars %}
-                <li class="collection-item">
+                <li class="collection-item" id="cal-chooser">
                     <label>
-                      <input name="group1" type="radio"/>
+                      <input class="with-gap" name="calendar" type="radio" id="calendar{{ loop.index }}"/>
                       <span>{{ calendar['summary'] }}</span>
                     </label>
                 </li>
@@ -96,9 +96,7 @@
           </ul>
         </div>
         <div class="col s12">
-          <button class="btn  waves-effect waves-light submit-btn"
-                  type="submit" id="calender-data-submit">Submit<i
-                  class="material-icons right">send</i></button>
+          <button class="btn waves-effect waves-light submit-btn" id="calender-data">Submit<i class="material-icons right">send</i></button>
         </div>
 
       </form>

@@ -2,7 +2,7 @@ from icalendar.parser import unescape_char
 from icalendar import Calendar, TypesFactory
 
 from authorize_gcal import authorize_credentials
-
+from gcal_communication import get_calendar_id_from_name
 import requests
 import datetime
 
@@ -153,29 +153,31 @@ def create_filter(courses):
     def course_filter(event):
         course_check = []
         for course in courses:
-            course_check.append(course['code'] in event['summary'] and
-                                course['type'] in event['description'] and not
-                                course['group'] in event['description'])
+            course_check.append(course['course_code'] in event['summary'] and
+                                course['description'] in event['description'] and not
+                                course['group-name'] in event['description'])
         return any(course_check)
 
     return course_filter
 
 
-def create_google_calendar_from_ical_url(url, course_code,
-                                         description, group_name, cred):
+def create_google_calendar_from_ical_url(url, out_name, filters, cred):
     timeedit_cal = get_timeedit_calendar(url)
-    filter_data = [{'code': course_code, 'type': description,
-                    'group_name': group_name}]
+    filters_data = []
+    for filter in filters:
+        filters_data.append(filters[filter])
+    print(filters_data)
     google_cal = convert_timeedit_to_gcal(
         timeedit_cal,
         filter_fn=None
     )
     filterd_cal = convert_timeedit_to_gcal(
         timeedit_cal,
-        filter_fn=create_filter(filter_data)
+        filter_fn=create_filter(filters_data)
     )
-    cal_id = 'p9pi74ns63ksuth8lb30d57i88@group.calendar.google.com'
-    import_calendar_to_gcal(cal_id, [filterd_cal[2]], cred)
+    #cal_id = '8njhivg95fij7paf5ek4qhr3ok@group.calendar.google.com'
+    cal_id = get_calendar_id_from_name(out_name, cred)
+    import_calendar_to_gcal(cal_id, filterd_cal, cred)
     return google_cal
 
 

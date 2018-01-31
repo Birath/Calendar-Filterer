@@ -1,24 +1,7 @@
 var elem = document.querySelector('.collapsible');
 var instance = M.Collapsible.init(elem, {});
 
-$('#calender-data').on('submit', function () {
-    event.preventDefault();
-    console.log('Submitting');
-    $.ajax({
-        url: 'filterer_test',
-        type: 'get',
-        data: {
-            'calendar-url': $('#calendar-url').val(),
-            'course-code': $('#course-code').val(),
-            'description': $('#description').val(),
-            'group-name': $('#group-name').val()
-        },
-        dataType: 'json',
-        success: function (data) {
-            console.log('we did it')
-        }
-    })
-});
+
 
 function getFilterID(elem) {
     var id = $(elem).attr('id');
@@ -91,6 +74,21 @@ function getFilterBody(filterID) {
     "    </div>\n" +
     "</li>";
 }
+
+
+function getFilterVals() {
+    var filterData =  {};
+    console.log(filterData);
+    $('#filter-list').children("li").each(function () {
+        var filter = $(this);
+        console.log(filter.children(".collapsible-body").find("input").each(function () {
+            filterData[$(this).attr('id')] = ($(this).val())
+        }));
+    });
+    return filterData
+}
+
+
 var filterNum = 0;
 $('#add-filter').on('click', function () {
     if ($('#filter-list').children().length === 1 ) {
@@ -118,6 +116,10 @@ $('body').on('click', '.delete-btn', function () {
     updateFilters()
 });
 
+$('body').on('click', '#cal-chooser', function () {
+    console.log($(this).children().children("input").prop("checked", true))
+});
+
 $('body').on('focus',"input.autocomplete" ,function () {
     $.getJSON("static/data/course_data.json", function( json ) {
         $('input.autocomplete').autocomplete({
@@ -136,8 +138,9 @@ $('body').on('focusout','[id^=autocomplete-input]', function () {
     if ($(this).val().length < 5) {
         return;
     }
-    console.log($(this).parents().eq(2).children().first().html("<i class=\"material-icons\">filter_list</i>" + "Filter for: " + $(this).val() ));
+    console.log($(this).parents().eq(3).children().first().html("<i class=\"material-icons\">filter_list</i>" + "Filter for: " + $(this).val() ));
 });
+
 
 $(document).ready(function(){
     $.getJSON("static/data/course_data.json", function( json ) {
@@ -148,5 +151,23 @@ $(document).ready(function(){
             sortFunction: sortFn
         });
     });
-  });
+    $('body').on('submit', '#calender-data', function () {
+        event.preventDefault();
+        console.log('Submitting');
+        var filterData = getFilterVals();
+        console.log(filterData);
+        filterData['out-calendar'] = $('input[name="calendar"]:checked').siblings("span").text();
+        filterData['calendar-url'] = $('#calendar-url').val();
+        $.ajax({
+            type: "GET",
+            url: 'filterer_test',
+            dataType: 'json',
+            data: filterData,
+            success: function (data) {
+                console.log('we did it')
+            }
+        });
+    });
+
+});
 

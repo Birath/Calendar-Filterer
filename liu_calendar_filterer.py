@@ -1,3 +1,5 @@
+import ssl
+
 from flask import Flask, render_template, request, jsonify, redirect, session
 from filterer import create_google_calendar_from_ical_url
 from authorize_gcal import create_authorization_url, get_credentials
@@ -5,6 +7,7 @@ from gcal_communication import get_calendar_list
 
 app = Flask(__name__)
 app.config.from_object('config.DevelopmentConfig')
+
 
 @app.route('/')
 def render_main():
@@ -17,14 +20,25 @@ def render_main():
 
 @app.route('/filterer_test', methods=['POST', 'GET'])
 def filterer():
-    cal_url = request.args['calendar-url']
-    course_code = request.args['course-code']
-    description = request.args['description']
-    group_name = request.args['group-name']
+    arguments = dict(request.args)
+    # All values are stored in lists, which must be removed before use
+    cal_url = arguments.pop('calendar-url')[0]
+    out_calendar_name = arguments.pop('out-calendar')[0]
+    filters = {}
+    for filter_data in arguments:
+        filter_id = filter_data[-1]
+        filter_data_name = filter_data[:-1]
+        if filter_data_name == "autocomplete-input":
+            filter_data_name = "course_code"
+        cur_filter = "filter_{}".format(filter_id)
+        if cur_filter in filters:
+            filters[cur_filter][filter_data_name] = arguments[filter_data][0]
+        else:
+            filters[cur_filter] = {filter_data_name: arguments[filter_data][0]}
+
     cal = create_google_calendar_from_ical_url(cal_url,
-                                               course_code,
-                                               description,
-                                               group_name,
+                                               out_calendar_name,
+                                               filters,
                                                session['credentials'])
 
     return jsonify(cal)
@@ -51,5 +65,7 @@ def authorize_session():
 
 
 if __name__ == '__main__':
+    context = ssl.SSLContext()
+    context.load_cert_chain("cert.pem", "key.pem")
     app.config.from_object('config.DevelopmentConfig')
-    app.run()
+    app.run(ssl_context=context)
