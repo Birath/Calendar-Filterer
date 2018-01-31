@@ -33,6 +33,12 @@ function getFilterID(elem) {
     }
 }
 
+function sortFn(a, b) {
+    if (a > b) return 1;
+    if (a < b) return -1;
+    return 0;
+}
+
 
 $.fn.ignore = function(sel){
   return this.clone().find(sel||">*").remove().end();
@@ -115,7 +121,8 @@ $('body').on('focus',"input.autocomplete" ,function () {
         $('input.autocomplete').autocomplete({
             data: json,
             limit: 4,
-            minLength: 2
+            minLength: 2,
+            sortFunction: sortFn
         });
     });
 });
@@ -135,7 +142,8 @@ $(document).ready(function(){
         $('input.autocomplete').autocomplete({
             data: json,
             limit: 4,
-            minLength: 2
+            minLength: 2,
+            sortFunction: sortFn
         });
     });
   });
