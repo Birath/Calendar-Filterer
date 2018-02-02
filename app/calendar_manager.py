@@ -1,7 +1,7 @@
 from icalendar.parser import unescape_char
 from icalendar import Calendar, TypesFactory
 
-from gcal_communication import get_calendar_id_from_name,\
+from app.gcal_communication import get_calendar_id_from_name,\
     add_event_to_google_calendar
 import requests
 import datetime

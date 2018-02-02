@@ -1,4 +1,4 @@
-from authorize_gcal import authorize_credentials
+from app.oauth2 import authorize_credentials
 
 
 def get_calendar_list(credentials):

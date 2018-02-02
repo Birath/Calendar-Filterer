@@ -5,7 +5,7 @@ from apiclient import discovery
 
 CLIENT_ID = '807046711232-8g7s3qgri59cc7e9a25ofe0bem71j8bm.apps.googleusercontent.com'
 SCOPES = ['https://www.googleapis.com/auth/calendar']
-CLIENT_SECRET_FILE = 'client_secret_website.json'
+CLIENT_SECRET_FILE = 'secrets/client_secret_website.json'
 APPLICATION_NAME = 'LIU Calendar Filterer'
 REDIRECT_URL = 'https://test.birath.org/oauth2callback'
 flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
