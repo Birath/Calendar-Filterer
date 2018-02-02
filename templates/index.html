@@ -37,12 +37,26 @@
               <li class="cal-chooser-collection-header collection-header disabled selected " ><span>Choose output calendar</span></li>
               {% for calendar in calendars %}
                 <li class="collection-item" id="cal-chooser">
-                    <label>
-                      <input class="with-gap" name="calendar" type="radio" id="calendar{{ loop.index }}"/>
-                      <span>{{ calendar['summary'] }}</span>
-                    </label>
+                  <label>
+                    <input class="with-gap" name="calendar" type="radio" id="calendar{{ loop.index }}"/>
+                    <span>{{ calendar['summary'] }}</span>
+                  </label>
                 </li>
               {% endfor %}
+              <li class="collection-item" id="cal-chooser">
+                  <div class="row">
+                    <div class="col s4">
+                      <label>
+                        <input class="with-gap" name="calendar" type="radio" id="calendar"/>
+                        <span>New Calendar</span>
+                      </label>
+                    </div>
+                    <div class="col s8 input-field">
+                      <input type="text" name="new-cal-name" id="new-cal-name">
+                      <label for="new-cal-name">Name</label>
+                    </div>
+                  </div>
+                </li>
             </ul>
           </div>
         {% endif %}
@@ -54,43 +68,31 @@
               </div>
             </div>
             <li class="active" id="last-filter">
-              <div class="collapsible-header"><i
-                      class="material-icons">filter_list</i>Filter
-                #1
-              </div>
+              <div class="collapsible-header"><i class="material-icons">filter_list</i>Filter #1</div>
               <div class="collapsible-body filter-body">
                 <div class="row">
                   <div class="col s6 input-field">
-                    <input type="text" name="course-code0"
-                           id="autocomplete-input0"
-                           autocomplete="off"
-                           class="autocomplete">
-                    <label for="autocomplete-input0">Course
-                      Code</label>
+                    <input type="text" name="course-code0" id="autocomplete-input0" autocomplete="off" class="autocomplete">
+                    <label for="autocomplete-input0">Course Code</label>
                   </div>
                   <div class="col s6 input-field">
-                    <input type="text" name="description0"
-                           id="description0">
+                    <input type="text" name="description0" id="description0">
                     <label for="description0">Description</label>
                   </div>
                   <div class="col s6 input-field">
-                    <input type="text" name="group-name0"
-                           id="group-name0">
+                    <input type="text" name="group-name0" id="group-name0">
                     <label for="group-name0">Group Name</label>
                   </div>
                   <div class="col s6">
-                    <button type="button"
-                            class="btn-flat waves-light waves-effect red white-text delete-btn right">
-                      delete
-                    </button>
+                    <button type="button" class="btn-flat waves-light waves-effect red white-text delete-btn right">delete</button>
                   </div>
                 </div>
               </div>
             </li>
             </li>
             <li id="filter-adder">
-              <div class="add-filter" id="add-filter"><i
-                      class="material-icons">add</i>Add filter
+              <div class="add-filter" id="add-filter">
+                <i class="material-icons">add</i>Add filter
               </div>
             </li>
           </ul>
