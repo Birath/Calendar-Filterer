@@ -20,7 +20,9 @@ def create_authorization_url():
     Gets the authorization url for Google Oauth2
     :return: A url
     """
-    authorization_url, state = flow.authorization_url()
+    authorization_url, state = flow.authorization_url(
+        access_type='offline'
+    )
     return authorization_url
 
 

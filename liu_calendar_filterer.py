@@ -53,7 +53,12 @@ def start_ouath():
 @app.route('/oauth2callback')
 def authorize_session():
     credentials = get_credentials(request.url)
-    session['credentials'] = {
+    session['credentials'] = credentials_to_dict(credentials)
+    return redirect('/')
+
+
+def credentials_to_dict(credentials):
+    return {
         'token': credentials.token,
         'refresh_token': credentials.refresh_token,
         'token_uri': credentials.token_uri,
@@ -61,7 +66,6 @@ def authorize_session():
         'client_secret': credentials.client_secret,
         'scopes': credentials.scopes
     }
-    return redirect('/')
 
 
 if __name__ == '__main__':
