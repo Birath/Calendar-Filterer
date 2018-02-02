@@ -29,10 +29,9 @@ function updateFilters() {
     var filterID = 0;
     $('#filter-list').children().each(function () {
         var filter = $(this);
-        console.log(filter.prop('tagName'));
         if (filter.prop("tagName") === 'DIV') return true;
         if (filter.attr('id') !== 'filter-adder') {
-            if (filter.children().first().ignore("i").text().indexOf("Filter #" >= 0)) {
+            if (filter.children().first().ignore("i").text().indexOf("Filter #") >= 0) {
                 var visualFilterID = filterID + 1;
                 filter.children().first().html("<i class=\"material-icons\">filter_list</i> Filter #"+ visualFilterID);
             }
@@ -91,7 +90,7 @@ function getFilterVals() {
 
 var filterNum = 0;
 $('#add-filter').on('click', function () {
-    if ($('#filter-list').children().length === 1 ) {
+    if ($('#filter-list').children().length === 2 ) {
         console.log("No filters");
         $('#add-filter').parent().before(function () {
             return getFilterBody(filterNum);
