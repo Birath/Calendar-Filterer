@@ -1,7 +1,13 @@
 var elem = document.querySelector('.collapsible');
 var instance = M.Collapsible.init(elem, {});
 
-
+function addNewCal(elem) {
+    elem.innerHTML = "" +
+        "<div class='input-field'>" +
+        "  <input type='text' name='new-cal-name' id='new-cal-name'>" +
+        "  <label for='new-cal-name'>Name of the new calendar</label>" +
+        "</div>"
+}
 
 function getFilterID(elem) {
     var id = $(elem).attr('id');
@@ -115,8 +121,39 @@ $('body').on('click', '.delete-btn', function () {
     updateFilters()
 });
 
+var newCal = true;
 $('body').on('click', '#cal-chooser', function () {
-    console.log($(this).children().children("input").prop("checked", true))
+    var input = $(this).children().children("input");
+    // Ignores if already checked
+    if (input.prop("checked") === true) {
+        return;
+    }
+    input.prop("checked", true);
+    if ($(this).attr('class') === "collection-item new-cal") {
+        // Adds the new calendar input
+        if (newCal) {
+            var oldHeight = $(this).css('height');
+            $(this).html("" +
+                "<div class='new-cal-name row valign-wrapper'>" +
+                "  <div class='col s4'>" +
+                "    <label>\n" +
+                "      <input class=\"with-gap\" name=\"calendar\" type=\"radio\" id=\"calendar\"/>\n" +
+                "      <span id='new-cal'>New calendar</span>\n" +
+                "    </label>" +
+                "  </div>" +
+                "  <div class='col s8 new-cal-name-input input-field'>" +
+                "    <input type='text' name='new-cal-name' id='new-cal-name'>" +
+                "    <label for='new-cal-name'>Calendar name</label>" +
+                "  </div>" +
+                "</div>" );
+            newCal = false;
+            var newHeight = $(this).css('height');
+            $(this).css({'height': oldHeight});
+            $(this).animate({'height': newHeight}, 300)
+        }
+
+        $(this).children().children().first().children().children('input').prop("checked", true);
+    }
 });
 
 $('body').on('focus',"input.autocomplete" ,function () {
@@ -155,15 +192,36 @@ $(document).ready(function(){
         console.log('Submitting');
         var filterData = getFilterVals();
         console.log(filterData);
-        filterData['out-calendar'] = $('input[name="calendar"]:checked').siblings("span").text();
+        var outCalendar = $('input[name="calendar"]:checked');
+        var outCalendarName = outCalendar.siblings("span").text();
+        var newCal = false;
+        if (outCalendar.siblings("span").attr('id') === "new-cal") {
+            outCalendarName = $('#new-cal-name').val();
+            newCal = true;
+        }
+        filterData['out-calendar'] = outCalendarName;
         filterData['calendar-url'] = $('#calendar-url').val();
+        filterData['new-cal'] = newCal;
+        //var source = new EventSource('/filterer_test', filterData);
+        //console.log(source.url);
+        //source.onmessage(function(event) {
+        //    console.log(event.data)
+        //});
+
         $.ajax({
             type: "GET",
             url: 'filterer_test',
-            dataType: 'json',
+            dataType: 'text/event-stream',
             data: filterData,
+            chunking: true,
+            // from https://github.com/likerRr/jq-ajax-progress
+            progress: function (e, part) {
+                $('#progress').attr('style', "width: " + part);
+                console.log(part)
+            },
             success: function (data) {
-                console.log('we did it')
+                console.log('we didi it');
+
             }
         });
     });

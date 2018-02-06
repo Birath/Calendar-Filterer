@@ -1,8 +1,9 @@
+import math
 from icalendar.parser import unescape_char
 from icalendar import Calendar, TypesFactory
 
 from app.gcal_communication import get_calendar_id_from_name,\
-    add_event_to_google_calendar
+    add_event_to_google_calendar, create_new_google_calendar
 import requests
 import datetime
 
@@ -136,6 +137,7 @@ def import_calendar_to_gcal(cal_id, calendar, cred):
         add_event_to_google_calendar(cal_id, event, cred)
 
 
+
 def create_filter(courses):
     """
     Creates a function that filters out events in courses
@@ -154,7 +156,7 @@ def create_filter(courses):
     return course_filter
 
 
-def create_google_calendar_from_ical_url(url, out_name, filters, cred):
+def create_google_calendar_from_ical_url(url, out_name, filters, cred, new_cal):
     ical_cal = get_ICal_calendar(url)
     filters_data = []
     for filter_data in filters:
@@ -170,9 +172,18 @@ def create_google_calendar_from_ical_url(url, out_name, filters, cred):
         filter_fn=create_filter(filters_data)
     )
     #cal_id = '8njhivg95fij7paf5ek4qhr3ok@group.calendar.google.com'
-    cal_id = get_calendar_id_from_name(out_name, cred)
-    import_calendar_to_gcal(cal_id, filtered_cal, cred)
-    return google_cal
+    if new_cal == "true":
+        cal_id = create_new_google_calendar(out_name, cred)
+    else:
+        cal_id = get_calendar_id_from_name(out_name, cred)
+
+    def import_generator():
+        for i, event in enumerate(filtered_cal):
+            add_event_to_google_calendar(cal_id, event, cred)
+            yield '{}%'.format(math.floor(((i + 1) / len(filtered_cal)) * 100))
+
+    # import_calendar_to_gcal(cal_id, filtered_cal, cred)
+    return import_generator
 
 
 def test():

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, session
+from flask import Blueprint, render_template, request, jsonify, session, Response
 
 from app.calendar_manager import create_google_calendar_from_ical_url
 from app.gcal_communication import get_calendar_list
@@ -21,6 +21,7 @@ def filterer():
     # All values are stored in lists, which must be removed before use
     cal_url = arguments.pop('calendar-url')[0]
     out_calendar_name = arguments.pop('out-calendar')[0]
+    new_cal = arguments.pop('new-cal')[0]
     filters = {}
     for filter_data in arguments:
         filter_id = filter_data[-1]
@@ -37,7 +38,8 @@ def filterer():
         cal_url,
         out_calendar_name,
         filters,
-        session['credentials']
+        session['credentials'],
+        new_cal
     )
 
-    return jsonify(cal)
+    return Response(cal(), mimetype="text/event-stream")

@@ -43,3 +43,19 @@ def add_event_to_google_calendar(cal_id, event, cred):
         calendarId=cal_id,
         body=event
     ).execute()
+
+
+def create_new_google_calendar(cal_name, cred):
+    """
+    Creates a Google Calendar with cal name
+    :param cal_name: The calendars name
+    :param cred: The Google Calendar API credentials
+    :return: The created calendars id
+    """
+    service = authorize_credentials(cred)
+    calendar = {
+        'summary': cal_name
+    }
+    calendar = service.calendars().insert(body=calendar).execute()
+
+    return calendar['id']
