@@ -6,8 +6,7 @@ from app.gcal_communication import get_calendar_id_from_name,\
     add_event_to_google_calendar, create_new_google_calendar
 import requests
 import datetime
-from multiprocessing import Process
-
+from multiprocessing import Pool
 
 def utc_to_local(utc_dt):
     """
@@ -104,7 +103,7 @@ def create_google_event(properties):
     return event
 
 
-def convert_ical_cal_to_gcal(calendar, filter_fn=None):
+def convert_ical_cal_to_gcal(calendar, cal_id, cred, filter_fn=None):
     """
     Converts a ICal calendar object to a Google Calendar object
     :param calendar: A ICalendar calendar object
@@ -122,6 +121,8 @@ def convert_ical_cal_to_gcal(calendar, filter_fn=None):
                 pass
             else:
                 g_event = create_google_event(event_properties)
+                g_event['cal_id'] = cal_id
+                g_event['cred'] = cred
                 google_calendar.append(g_event)
     return google_calendar
 
@@ -162,27 +163,40 @@ def create_google_calendar_from_ical_url(url, out_name, filters, cred, new_cal):
     for filter_data in filters:
         filters_data.append(filters[filter_data])
 
-    google_cal = convert_ical_cal_to_gcal(
-        ical_cal,
-        filter_fn=None
-    )
-
-    filtered_cal = convert_ical_cal_to_gcal(
-        ical_cal,
-        filter_fn=create_filter(filters_data)
-    )
-    #cal_id = '8njhivg95fij7paf5ek4qhr3ok@group.calendar.google.com'
     if new_cal == "true":
         cal_id = create_new_google_calendar(out_name, cred)
     else:
         cal_id = get_calendar_id_from_name(out_name, cred)
 
-    def import_generator():
-        for i, event in enumerate(filtered_cal):
-            add_event_to_google_calendar(cal_id, event, cred)
-            yield 'data: {}%\n\n'.format(math.floor(((i + 1) / len(filtered_cal)) * 100))
+    # google_cal = convert_ical_cal_to_gcal(
+    #    ical_cal,
+    #    cal_id,
+    #    cred,
+    #    filter_fn=None
+    # )
 
-    # import_calendar_to_gcal(cal_id, filtered_cal, cred)
+    filtered_cal = convert_ical_cal_to_gcal(
+        ical_cal,
+        cal_id,
+        cred,
+        filter_fn=create_filter(filters_data)
+    )
+    """
+    Does NOT work in windows due to a bug in multiprocessing or flask,
+    Probably something to do with this
+    https://github.com/pallets/flask/issues/777
+    """
+    def import_generator():
+        """
+        A generator which maps all events to pools and import them to google calendar
+        :yields: the % of events added
+        """
+        p = Pool(4)
+        #
+        for i, event in enumerate(p.imap_unordered(add_event_to_google_calendar, filtered_cal)):
+            yield 'data: {}%\n\n'.format(math.floor(((i + 1) / len(filtered_cal)) * 100))
+        p.close()
+
     return import_generator
 
 

@@ -29,7 +29,7 @@ def get_calendar_id_from_name(cal_name, credentials):
             return calendar['id']
 
 
-def add_event_to_google_calendar(cal_id, event, cred):
+def add_event_to_google_calendar(event):
     """
     Adds an event to the google calendar with the id cal_id
     :param cal_id: A Google Calendar ID
@@ -37,6 +37,9 @@ def add_event_to_google_calendar(cal_id, event, cred):
     :param cred: The Google Calendar API credentials
     :return:
     """
+    print("Adding event")
+    cred = event.pop('cred')
+    cal_id = event.pop('cal_id')
     service = authorize_credentials(cred)
 
     imported_event = service.events().import_(

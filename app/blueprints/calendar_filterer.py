@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, session, Response
+from flask import Blueprint, render_template, request, session, Response
 
 from app.calendar_manager import create_google_calendar_from_ical_url
 from app.gcal_communication import get_calendar_list
