@@ -6,6 +6,7 @@ from app.gcal_communication import get_calendar_id_from_name,\
     add_event_to_google_calendar, create_new_google_calendar
 import requests
 import datetime
+from multiprocessing import Process
 
 
 def utc_to_local(utc_dt):
@@ -137,7 +138,6 @@ def import_calendar_to_gcal(cal_id, calendar, cred):
         add_event_to_google_calendar(cal_id, event, cred)
 
 
-
 def create_filter(courses):
     """
     Creates a function that filters out events in courses
@@ -180,7 +180,7 @@ def create_google_calendar_from_ical_url(url, out_name, filters, cred, new_cal):
     def import_generator():
         for i, event in enumerate(filtered_cal):
             add_event_to_google_calendar(cal_id, event, cred)
-            yield '{}%'.format(math.floor(((i + 1) / len(filtered_cal)) * 100))
+            yield 'data: {}%\n\n'.format(math.floor(((i + 1) / len(filtered_cal)) * 100))
 
     # import_calendar_to_gcal(cal_id, filtered_cal, cred)
     return import_generator

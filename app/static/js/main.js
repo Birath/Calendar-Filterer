@@ -178,6 +178,23 @@ $('body').on('focusout','[id^=autocomplete-input]', function () {
 });
 
 
+function getProgress() {
+    // Uses an eventsource to stream the progress of adding the calendar events
+    var progressSource = new EventSource('/progress');
+    progressSource.onmessage = function (e) {
+        var progress = e.data;
+        $('#progress').attr('style', "width: " + progress);
+        if (progress === "100%") {
+            progressSource.close();
+            console.log('Closed connection')
+        }
+    progressSource.onerror = function () {
+        console.log('Progress function failed.');
+        progressSource.close();
+    }
+    };
+}
+
 $(document).ready(function(){
     $.getJSON("static/data/course_data.json", function( json ) {
         $('input.autocomplete').autocomplete({
@@ -202,26 +219,14 @@ $(document).ready(function(){
         filterData['out-calendar'] = outCalendarName;
         filterData['calendar-url'] = $('#calendar-url').val();
         filterData['new-cal'] = newCal;
-        //var source = new EventSource('/filterer_test', filterData);
-        //console.log(source.url);
-        //source.onmessage(function(event) {
-        //    console.log(event.data)
-        //});
-
         $.ajax({
             type: "GET",
             url: 'filterer_test',
-            dataType: 'text/event-stream',
+            dataType: 'text',
             data: filterData,
-            chunking: true,
-            // from https://github.com/likerRr/jq-ajax-progress
-            progress: function (e, part) {
-                $('#progress').attr('style', "width: " + part);
-                console.log(part)
-            },
             success: function (data) {
-                console.log('we didi it');
-
+                console.log('completed');
+                getProgress()
             }
         });
     });
