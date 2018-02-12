@@ -40,6 +40,7 @@ def add_event_to_google_calendar(event):
     print("Adding event")
     cred = event.pop('cred')
     cal_id = event.pop('cal_id')
+    print(cred)
     service = authorize_credentials(cred)
 
     imported_event = service.events().import_(

@@ -4,9 +4,13 @@ from icalendar import Calendar, TypesFactory
 
 from app.gcal_communication import get_calendar_id_from_name,\
     add_event_to_google_calendar, create_new_google_calendar
+from app import db
 import requests
 import datetime
 from multiprocessing import Pool
+
+from app.models import User, Filter
+
 
 def utc_to_local(utc_dt):
     """
@@ -157,6 +161,32 @@ def create_filter(courses):
     return course_filter
 
 
+def add_to_db(cal_url, cal_id, filters, cred):
+
+    user = User(
+        cal_id=cal_id,
+        cal_url=cal_url,
+        token=cred['token'],
+        refresh_token=cred['refresh_token'],
+        token_uri=cred['token_uri'],
+        client_id=cred['client_id'],
+        client_secret=cred['client_secret'],
+        scopes=cred['scopes'][0]
+    )
+    print(db)
+    db.session.add(user)
+    db.session.commit()
+    for cal_filter in filters:
+        filt = Filter(
+            course_code=cal_filter['course_code'],
+            description=cal_filter['description'],
+            group_name=cal_filter['group-name'],
+            owner=user
+        )
+        db.session.add(filt)
+    db.session.commit()
+
+
 def create_google_calendar_from_ical_url(url, out_name, filters, cred, new_cal):
     ical_cal = get_ICal_calendar(url)
     filters_data = []
@@ -174,7 +204,7 @@ def create_google_calendar_from_ical_url(url, out_name, filters, cred, new_cal):
     #    cred,
     #    filter_fn=None
     # )
-
+    add_to_db(url, cal_id, filters_data, cred)
     filtered_cal = convert_ical_cal_to_gcal(
         ical_cal,
         cal_id,
@@ -182,7 +212,7 @@ def create_google_calendar_from_ical_url(url, out_name, filters, cred, new_cal):
         filter_fn=create_filter(filters_data)
     )
     """
-    Does NOT work in windows due to a bug in multiprocessing or flask,
+    Does NOT work on Windows due to a bug in multiprocessing or flask,
     Probably something to do with this
     https://github.com/pallets/flask/issues/777
     """

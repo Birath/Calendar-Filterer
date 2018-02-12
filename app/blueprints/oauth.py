@@ -15,6 +15,7 @@ def start_ouath():
 def authorize_session():
     credentials = get_credentials(request.url)
     session['credentials'] = credentials_to_dict(credentials)
+
     return redirect('/')
 
 
@@ -27,3 +28,4 @@ def credentials_to_dict(credentials):
         'client_secret': credentials.client_secret,
         'scopes': credentials.scopes
     }
+

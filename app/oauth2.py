@@ -20,7 +20,8 @@ def create_authorization_url():
     :return: A url
     """
     authorization_url, state = flow.authorization_url(
-        access_type='offline'
+        access_type='offline',
+        include_granted_scopes='true'
     )
     return authorization_url
 
@@ -41,6 +42,7 @@ def authorize_credentials(credentials):
     :param credentials: Credentials stored in the flask session
     :return: Authorized service for the Google Calendar API
     """
+    print(credentials)
     credentials = google.oauth2.credentials.Credentials(
         **credentials)
     service = discovery.build('calendar', 'v3', credentials=credentials)

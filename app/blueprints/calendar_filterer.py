@@ -39,7 +39,6 @@ def filterer():
     session['filters'] = filters
 
     return "Success"
-    #return Response(cal(), mimetype="text/event-stream")
 
 
 @bp.route('/progress')
@@ -56,3 +55,4 @@ def get_progress():
         new_cal
     )
     return Response(cal(), mimetype="text/event-stream")
+
