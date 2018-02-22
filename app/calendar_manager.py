@@ -131,7 +131,7 @@ def convert_ical_cal_to_gcal(calendar, cal_id, cred, filter_fn=None):
     return google_calendar
 
 
-def import_calendar_to_gcal(cal_id, calendar, cred):
+def import_calendar_to_gcal(calendar):
     """
     Imports a calendar object to the Google Calendar with a ID of cal_id
     :param cal_id: A Google Calendar ID
@@ -140,7 +140,7 @@ def import_calendar_to_gcal(cal_id, calendar, cred):
     :return: None
     """
     for event in calendar:
-        add_event_to_google_calendar(cal_id, event, cred)
+        add_event_to_google_calendar(event)
 
 
 def create_filter(courses):
@@ -162,7 +162,14 @@ def create_filter(courses):
 
 
 def add_to_db(cal_url, cal_id, filters, cred):
-
+    """
+    Adds a user to the database
+    :param cal_url: The url to ical file the user uses
+    :param cal_id: The Google Calendar ID the user uses
+    :param filters: The users filters
+    :param cred: The users credentials
+    :return:
+    """
     user = User(
         cal_id=cal_id,
         cal_url=cal_url,
@@ -173,7 +180,6 @@ def add_to_db(cal_url, cal_id, filters, cred):
         client_secret=cred['client_secret'],
         scopes=cred['scopes'][0]
     )
-    print(db)
     db.session.add(user)
     db.session.commit()
     for cal_filter in filters:
@@ -198,13 +204,8 @@ def create_google_calendar_from_ical_url(url, out_name, filters, cred, new_cal):
     else:
         cal_id = get_calendar_id_from_name(out_name, cred)
 
-    # google_cal = convert_ical_cal_to_gcal(
-    #    ical_cal,
-    #    cal_id,
-    #    cred,
-    #    filter_fn=None
-    # )
     add_to_db(url, cal_id, filters_data, cred)
+
     filtered_cal = convert_ical_cal_to_gcal(
         ical_cal,
         cal_id,
@@ -228,6 +229,21 @@ def create_google_calendar_from_ical_url(url, out_name, filters, cred, new_cal):
         p.close()
 
     return import_generator
+
+
+def update_calendar(url, cal_id, filters, cred):
+    ical_cal = get_ICal_calendar(url)
+    filters_data = []
+    for filter_data in filters:
+        filters_data.append(filters[filter_data])
+
+    filtered_cal = convert_ical_cal_to_gcal(
+        ical_cal,
+        cal_id,
+        cred,
+        filter_fn=create_filter(filters_data)
+    )
+    import_calendar_to_gcal(filtered_cal)
 
 
 def test():

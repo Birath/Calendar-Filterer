@@ -52,7 +52,7 @@ def get_progress():
         out_calendar_name,
         filters,
         session['credentials'],
-        new_cal
+        new_cal,
     )
     return Response(cal(), mimetype="text/event-stream")
 
