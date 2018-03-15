@@ -15,7 +15,7 @@ class User(db.Model):
     filters = db.relationship('Filter', backref='owner', lazy='dynamic')
 
     def __repr__(self):
-        return '<User {}'.format(self.cal_id)
+        return '<User {}>'.format(self.google_id)
 
 
 class Filter(db.Model):

@@ -43,3 +43,4 @@ tmtagsHistory
 # Project files #
 #################
 /secrets
+.db

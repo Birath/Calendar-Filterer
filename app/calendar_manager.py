@@ -204,15 +204,13 @@ def create_google_calendar_from_ical_url(url, out_name, filters, cred, new_cal, 
 
 def update_calendar(url, cal_id, filters, cred):
     ical_cal = get_ICal_calendar(url)
-    filters_data = []
-    for filter_data in filters:
-        filters_data.append(filters[filter_data])
+
 
     filtered_cal = convert_ical_cal_to_gcal(
         ical_cal,
         cal_id,
         cred,
-        filter_fn=create_filter(filters_data)
+        filter_fn=create_filter(filters)
     )
     import_calendar_to_gcal(filtered_cal)
 
