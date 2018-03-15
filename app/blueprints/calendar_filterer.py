@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, session, Response
 
 from app.calendar_manager import create_google_calendar_from_ical_url
-from app.gcal_communication import get_calendar_list
+from app.gcal_communication import get_calendar_list, get_user_id
+from app.db_manager import add_user_to_db
 
 bp = Blueprint('index', __name__)
 
@@ -10,6 +11,10 @@ bp = Blueprint('index', __name__)
 def render_main():
     if session.get('credentials'):
         calendar_list = get_calendar_list(session['credentials'])
+        user_id = get_user_id(session['credentials'])
+        if not session.get('google_id'):
+            add_user_to_db(user_id)
+            session['google_id'] = user_id
         return render_template('index.html', calendars=calendar_list)
     else:
         return render_template('index.html')
@@ -25,17 +30,12 @@ def filterer():
     session['cal_url'] = cal_url
     session['out_calendar_name'] = out_calendar_name
     session['new_cal'] = new_cal
-    filters = {}
+    filters = []
     for filter_data in arguments:
-        filter_id = filter_data[-1]
-        filter_data_name = filter_data[:-1]
-        if filter_data_name == "autocomplete-input":
-            filter_data_name = "course_code"
-        cur_filter = "filter_{}".format(filter_id)
-        if cur_filter in filters:
-            filters[cur_filter][filter_data_name] = arguments[filter_data][0]
-        else:
-            filters[cur_filter] = {filter_data_name: arguments[filter_data][0]}
+        filters.append({
+            "course_code": arguments[filter_data][0],
+            "description": arguments[filter_data][1],
+            "group_name": arguments[filter_data][2]})
     session['filters'] = filters
 
     return "Success"
@@ -55,4 +55,5 @@ def get_progress():
         new_cal,
     )
     return Response(cal(), mimetype="text/event-stream")
+
 

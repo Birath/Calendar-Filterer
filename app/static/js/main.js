@@ -82,14 +82,18 @@ function getFilterBody(filterID) {
 
 
 function getFilterVals() {
-    var filterData =  {};
-    console.log(filterData);
+    var filterData =  [];
+    var filterIndex = 0;
     $('#filter-list').children("li").each(function () {
         var filter = $(this);
-        console.log(filter.children(".collapsible-body").find("input").each(function () {
-            filterData[$(this).attr('id')] = ($(this).val())
-        }));
+        var currentFilterData = [];
+        filter.children(".collapsible-body").find("input").each(function () {
+            currentFilterData.push(($(this).val()));
+        });
+        filterData.push(currentFilterData.concat());
+        filterIndex++;
     });
+    console.log(filterData);
     return filterData
 }
 
@@ -123,17 +127,18 @@ $('body').on('click', '.delete-btn', function () {
 
 var newCal = true;
 $('body').on('click', '#cal-chooser', function () {
-    var input = $(this).children().children("input");
+    var calChoice  =  $(this);
+    var input = calChoice.children().children("input");
     // Ignores if already checked
     if (input.prop("checked") === true) {
         return;
     }
     input.prop("checked", true);
-    if ($(this).attr('class') === "collection-item new-cal") {
-        // Adds the new calendar input
+    if (calChoice.attr('class') === "collection-item new-cal") {
+        // Adds input for the name of the new cal
         if (newCal) {
-            var oldHeight = $(this).css('height');
-            $(this).html("" +
+            var oldHeight = calChoice.css('height');
+            calChoice.html("" +
                 "<div class='new-cal-name row valign-wrapper'>" +
                 "  <div class='col s4'>" +
                 "    <label>\n" +
@@ -148,11 +153,11 @@ $('body').on('click', '#cal-chooser', function () {
                 "</div>" );
             newCal = false;
             var newHeight = $(this).css('height');
-            $(this).css({'height': oldHeight});
-            $(this).animate({'height': newHeight}, 300)
+            calChoice.css({'height': oldHeight});
+            calChoice.animate({'height': newHeight}, 300)
         }
-
-        $(this).children().children().first().children().children('input').prop("checked", true);
+        // Checks the new checkbox
+        calChoice.find("input").first().prop("checked", true);
     }
 });
 
@@ -204,11 +209,12 @@ $(document).ready(function(){
             sortFunction: sortFn
         });
     });
-    $('body').on('submit', '#calender-data', function () {
+    $('body').on('submit', '#calender-data', function (event) {
         event.preventDefault();
         console.log('Submitting');
         var filterData = getFilterVals();
         console.log(filterData);
+        var sendData = {};
         var outCalendar = $('input[name="calendar"]:checked');
         var outCalendarName = outCalendar.siblings("span").text();
         var newCal = false;
@@ -216,14 +222,15 @@ $(document).ready(function(){
             outCalendarName = $('#new-cal-name').val();
             newCal = true;
         }
-        filterData['out-calendar'] = outCalendarName;
-        filterData['calendar-url'] = $('#calendar-url').val();
-        filterData['new-cal'] = newCal;
+        sendData["filters"] = filterData;
+        sendData['out-calendar'] = outCalendarName;
+        sendData['calendar-url'] = $('#calendar-url').val();
+        sendData['new-cal'] = newCal;
         $.ajax({
             type: "GET",
             url: 'filterer_test',
             dataType: 'text',
-            data: filterData,
+            data: sendData,
             success: function (data) {
                 console.log('completed');
                 getProgress()
