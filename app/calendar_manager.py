@@ -160,8 +160,7 @@ def create_filter(courses):
     return course_filter
 
 
-
-def create_google_calendar_from_ical_url(url, out_name, filters, cred, new_cal):
+def create_google_calendar_from_ical_url(url, out_name, filters, cred, new_cal, google_id):
     ical_cal = get_ICal_calendar(url)
     filters_data_list = []
     for filter_data in filters:
@@ -176,7 +175,7 @@ def create_google_calendar_from_ical_url(url, out_name, filters, cred, new_cal):
     else:
         cal_id = get_calendar_id_from_name(out_name, cred)
 
-    add_cal_to_db(url, cal_id, filters_data_list, cred)
+    add_cal_to_db(google_id, url, cal_id, filters_data_list, cred)
 
     filtered_cal = convert_ical_cal_to_gcal(
         ical_cal,

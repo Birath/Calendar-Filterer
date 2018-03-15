@@ -5,7 +5,7 @@ import google_auth_oauthlib.flow
 from apiclient import discovery
 
 CLIENT_ID = '807046711232-8g7s3qgri59cc7e9a25ofe0bem71j8bm.apps.googleusercontent.com'
-SCOPES = ['https://www.googleapis.com/auth/calendar']
+SCOPES = ['https://www.googleapis.com/auth/calendar', 'profile']
 CLIENT_SECRET_FILE = 'instance/client_secret_website.json'
 APPLICATION_NAME = 'LIU Calendar Filterer'
 flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
@@ -37,7 +37,7 @@ def get_credentials(response):
     return flow.credentials
 
 
-def authorize_credentials(credentials):
+def get_gcal_service(credentials):
     """
     Returns an authorized service for the Google Calendar API
     :param credentials: Credentials stored in the flask session
@@ -48,12 +48,26 @@ def authorize_credentials(credentials):
         **credentials)
     if credentials.expired:
         print("Cred expired")
-    else:
-        print("Cred not expired")
     # request = requests.Request()
     # credentials.refresh(request)
     service = discovery.build(
         'calendar', 'v3',
         credentials=credentials, cache_discovery=False
+    )
+    return service
+
+
+def get_user_info_service(credentials):
+    """
+    Creates an authorized service for the Google People API
+    :param credentials: Google API credentials
+    :return: Authorized service for the Google People API
+    """
+    credentials = google.oauth2.credentials.Credentials(
+        **credentials
+    )
+    service = discovery.build(
+        serviceName='people', version='v1',
+        credentials=credentials, cache_discovery=False,
     )
     return service

@@ -1,4 +1,4 @@
-from app.oauth2 import authorize_credentials
+from app.oauth2 import get_gcal_service, get_user_info_service
 
 
 def get_calendar_list(credentials):
@@ -7,7 +7,7 @@ def get_calendar_list(credentials):
     :param credentials: The Google Calendar API credentials
     :return: A list of Calendars
     """
-    service = authorize_credentials(credentials)
+    service = get_gcal_service(credentials)
 
     calendar_list = service.calendarList().list(
         minAccessRole="owner"
@@ -39,7 +39,7 @@ def add_event_to_google_calendar(event):
     """
     cred = event.pop('cred')
     cal_id = event.pop('cal_id')
-    service = authorize_credentials(cred)
+    service = get_gcal_service(cred)
 
     imported_event = service.events().import_(
         calendarId=cal_id,
@@ -54,10 +54,25 @@ def create_new_google_calendar(cal_name, cred):
     :param cred: The Google Calendar API credentials
     :return: The created calendars id
     """
-    service = authorize_credentials(cred)
+    service = get_gcal_service(cred)
     calendar = {
         'summary': cal_name
     }
     calendar = service.calendars().insert(body=calendar).execute()
 
     return calendar['id']
+
+
+def get_user_id(cred):
+    """
+    Gets the user id
+    :param cred: Google API credentials
+    :return: The user id
+    """
+    service = get_user_info_service(cred)
+    user_info = service.people().get(
+        resourceName='people/me', personFields='metadata'
+    ).execute()
+    # User id is for some reason in a list under sources
+    user_id = user_info['metadata']['sources'][0]['id']
+    return user_id

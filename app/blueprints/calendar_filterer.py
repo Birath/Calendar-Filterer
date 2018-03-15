@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, session, Response
 
 from app.calendar_manager import create_google_calendar_from_ical_url
 from app.gcal_communication import get_calendar_list, get_user_id
-from app.db_manager import add_user_to_db
+from app.db_manager import add_user_to_db, get_credentials
 
 bp = Blueprint('index', __name__)
 
@@ -10,11 +10,14 @@ bp = Blueprint('index', __name__)
 @bp.route('/')
 def render_main():
     if session.get('credentials'):
-        calendar_list = get_calendar_list(session['credentials'])
         user_id = get_user_id(session['credentials'])
+        print(user_id)
         if not session.get('google_id'):
             add_user_to_db(user_id)
             session['google_id'] = user_id
+        else:
+            session['credentials'] = get_credentials(user_id)
+        calendar_list = get_calendar_list(session['credentials'])
         return render_template('index.html', calendars=calendar_list)
     else:
         return render_template('index.html')
@@ -53,6 +56,7 @@ def get_progress():
         filters,
         session['credentials'],
         new_cal,
+        session['google_id']
     )
     return Response(cal(), mimetype="text/event-stream")
 
