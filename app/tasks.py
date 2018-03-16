@@ -2,6 +2,7 @@ from app import make_celery, create_app
 from app.models import User
 from celery.schedules import crontab
 from app.calendar_manager import update_calendar, FilterData
+from app.db_manager import get_credentials
 
 celery = make_celery()
 app = create_app()
@@ -20,21 +21,20 @@ def update_cals():
     with app.app_context():
         for user in User.query.all():
             print("Updating ", user)
-            filters = []
-            for filter_data in user.filters:
-                filters.append(FilterData(
-                    filter_data.course_code,
-                    filter_data.description,
-                    filter_data.group_name,
-                ))
-            cred = {
-                'token': user.token,
-                'refresh_token': user.refresh_token,
-                'token_uri': user.token_uri,
-                'client_id': user.client_id,
-                'client_secret': user.client_secret,
-                'scopes': [user.scopes]
-            }
-            update_calendar(user.cal_url, user.cal_id, filters, cred)
+            credentials = get_credentials(user)
+            for calendar in user.calendars:
+                filters = []
+                for filter_data in calendar.filters:
+                    filters.append(FilterData(
+                        filter_data.course_code,
+                        filter_data.description,
+                        filter_data.group_name,
+                    ))
+                update_calendar(
+                    calendar.cal_url,
+                    calendar.cal_id,
+                    filters,
+                    credentials
+                )
 
     print("Finished task")

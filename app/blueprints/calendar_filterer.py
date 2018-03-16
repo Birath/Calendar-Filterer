@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, session, Response
 
 from app.calendar_manager import create_google_calendar_from_ical_url
 from app.gcal_communication import get_calendar_list, get_user_id
-from app.db_manager import add_user_to_db, get_credentials
+from app.db_manager import add_user_to_db, get_credentials, get_user
 
 bp = Blueprint('index', __name__)
 
@@ -11,12 +11,13 @@ bp = Blueprint('index', __name__)
 def render_main():
     if session.get('credentials'):
         user_id = get_user_id(session['credentials'])
-        print(user_id)
+        print("User id:", user_id)
         if not session.get('google_id'):
-            add_user_to_db(user_id)
+            add_user_to_db(user_id, session['credentials'])
             session['google_id'] = user_id
         else:
-            session['credentials'] = get_credentials(user_id)
+            user = get_user(user_id)
+            session['credentials'] = get_credentials(user)
         calendar_list = get_calendar_list(session['credentials'])
         return render_template('index.html', calendars=calendar_list)
     else:
@@ -35,10 +36,12 @@ def filterer():
     session['new_cal'] = new_cal
     filters = []
     for filter_data in arguments:
+        print(arguments[filter_data])
         filters.append({
             "course_code": arguments[filter_data][0],
             "description": arguments[filter_data][1],
             "group_name": arguments[filter_data][2]})
+    print(filters)
     session['filters'] = filters
 
     return "Success"

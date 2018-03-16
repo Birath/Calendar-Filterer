@@ -4,7 +4,7 @@ from icalendar import Calendar, TypesFactory
 
 from app.gcal_communication import get_calendar_id_from_name,\
     add_event_to_google_calendar, create_new_google_calendar
-from app.db_manager import add_cal_to_db
+from app.db_manager import add_cal_to_user
 
 import requests
 import datetime
@@ -165,9 +165,9 @@ def create_google_calendar_from_ical_url(url, out_name, filters, cred, new_cal, 
     filters_data_list = []
     for filter_data in filters:
         filters_data_list.append(FilterData(
-            filter_data["course_code"],
-            filter_data["description"],
-            filter_data["group_name"]
+            course_code=filter_data["course_code"],
+            description=filter_data["description"],
+            group_name=filter_data["group_name"]
         ))
 
     if new_cal == "true":
@@ -175,7 +175,7 @@ def create_google_calendar_from_ical_url(url, out_name, filters, cred, new_cal, 
     else:
         cal_id = get_calendar_id_from_name(out_name, cred)
 
-    add_cal_to_db(google_id, url, cal_id, filters_data_list, cred)
+    add_cal_to_user(google_id, url, cal_id, filters_data_list)
 
     filtered_cal = convert_ical_cal_to_gcal(
         ical_cal,
@@ -233,7 +233,7 @@ class FilterData:
     description = ""
     group_name = ""
 
-    def __init__(self, course_code, group_name, description):
+    def __init__(self, course_code, description, group_name):
         self.course_code = course_code
         self.description = description
         self.group_name = group_name
