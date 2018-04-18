@@ -4,7 +4,7 @@ from flask_migrate import Migrate
 from celery import Celery
 db = SQLAlchemy()
 migrate = Migrate()
-celery = Celery()
+#celery = Celery()
 
 
 def create_app():
@@ -25,7 +25,11 @@ def create_app():
 
 def make_celery():
     app = create_app()
-    celery = Celery(app.import_name, broker=app.config['CELERY_BROKER_URL'])
+    celery = Celery(
+        app.import_name,
+        broker=app.config['REDIS_URL'],
+        backend=app.config['REDIS_URL']
+    )
     celery.conf.update(app.config)
     TaskBase = celery.Task
 
@@ -36,6 +40,8 @@ def make_celery():
             with app.app_context():
                 return TaskBase.__call__(self, *args, **kwargs)
 
-    celery.Task = TaskBase
+    celery.Task = ContextTask
     return celery
 
+
+celery = make_celery()

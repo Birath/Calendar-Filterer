@@ -183,21 +183,23 @@ $('body').on('focusout','[id^=autocomplete-input]', function () {
 });
 
 
-function getProgress() {
+function getProgress(status_url) {
     // Uses an eventsource to stream the progress of adding the calendar events
-    var progressSource = new EventSource('/progress');
-    progressSource.onmessage = function (e) {
-        var progress = e.data;
-        $('#progress').attr('style', "width: " + progress);
-        if (progress === "100%") {
-            progressSource.close();
-            console.log('Closed connection')
+    $.getJSON(status_url, function (data) {
+        if (data['state'] === 'SUCCESS') {
+            var percent = parseInt(data['current'] * 100 / data['total']);
+            console.log(percent);
+            $('#progress').attr('style', "width: " + percent + '%');
         }
-    progressSource.onerror = function () {
-        console.log('Progress function failed.');
-        progressSource.close();
-    }
-    };
+        else if (data['state'] !== 'FAILURE')  {
+            var percent = parseInt(data['current'] * 100 / data['total']);
+            console.log(percent);
+            $('#progress').attr('style', "width: " + percent + '%');
+            setTimeout(function () {
+                getProgress(status_url)
+            }, 100)
+        }
+    });
 }
 
 $(document).ready(function(){
@@ -231,12 +233,13 @@ $(document).ready(function(){
             url: 'filterer_test',
             dataType: 'text',
             data: sendData,
-            success: function (data) {
+            success: function (data, status, request) {
+                var status_url = request.getResponseHeader('Location');
+
                 console.log('completed');
-                getProgress()
+                getProgress(status_url)
             }
         });
     });
 
 });
-

@@ -1,5 +1,6 @@
 import google.oauth2.credentials
-from google.auth.transport import requests
+import google.auth.transport.urllib3
+import urllib3
 import google_auth_oauthlib.flow
 
 from apiclient import discovery
@@ -43,11 +44,18 @@ def get_gcal_service(credentials):
     :param credentials: Credentials stored in the flask session
     :return: Authorized service for the Google Calendar API
     """
-    # print(credentials)
+
     credentials = google.oauth2.credentials.Credentials(
-        **credentials)
+        **credentials
+    )
+
     if credentials.expired:
         print("Cred expired")
+
+
+    http = urllib3.PoolManager()
+    request = google.auth.transport.urllib3.Request(http)
+    # credentials.refresh(request)
     # request = requests.Request()
     # credentials.refresh(request)
     service = discovery.build(

@@ -1,8 +1,9 @@
-from flask import Blueprint, render_template, request, session, Response
+from flask import Blueprint, render_template, request, session, jsonify, \
+    url_for
 
-from app.calendar_manager import create_google_calendar_from_ical_url
-from app.gcal_communication import get_calendar_list, get_user_id
 from app.db_manager import add_user_to_db, get_credentials, get_user
+from app.gcal_communication import get_calendar_list, get_user_id
+
 
 bp = Blueprint('index', __name__)
 
@@ -13,8 +14,10 @@ def render_main():
         user_id = get_user_id(session['credentials'])
         print("User id:", user_id)
         if not session.get('google_id'):
-            add_user_to_db(user_id, session['credentials'])
-            session['google_id'] = user_id
+            if add_user_to_db(user_id, session['credentials']):
+                session['google_id'] = user_id
+            else:
+                session['credentials'] = get_credentials(get_user(user_id))
         else:
             user = get_user(user_id)
             session['credentials'] = get_credentials(user)
@@ -43,17 +46,8 @@ def filterer():
             "group_name": arguments[filter_data][2]})
     print(filters)
     session['filters'] = filters
-
-    return "Success"
-
-
-@bp.route('/progress')
-def get_progress():
-    cal_url = session['cal_url']
-    out_calendar_name = session['out_calendar_name']
-    new_cal = session['new_cal']
-    filters = session['filters']
-    cal = create_google_calendar_from_ical_url(
+    from app.tasks import upload_cal
+    task = upload_cal.delay(
         cal_url,
         out_calendar_name,
         filters,
@@ -61,6 +55,34 @@ def get_progress():
         new_cal,
         session['google_id']
     )
-    return Response(cal(), mimetype="text/event-stream")
+
+    return jsonify({}), 202, {'Location': url_for('index.get_progress',
+                                                  task_id=task.id)}
 
 
+@bp.route('/progress<task_id>')
+def get_progress(task_id):
+    from app.tasks import upload_cal
+    task = upload_cal.AsyncResult(task_id)
+    print(task.state)
+    if task.state == 'PENDING':
+        response = {
+            'state': task.state,
+            'current': 0,
+            'total': 1
+        }
+    elif task.state == 'SUCCESS':
+        response = {
+            'state': task.state,
+            'current': 1,
+            'total': 1
+        }
+    else:
+        print(task.info.get('current'))
+        print(task.state)
+        response = {
+            'state': task.state,
+            'current': task.info.get('current', 0),
+            'total': task.info.get('total', 1)
+        }
+    return jsonify(response)

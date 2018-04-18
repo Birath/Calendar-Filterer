@@ -198,13 +198,22 @@ def create_google_calendar_from_ical_url(url, out_name, filters, cred, new_cal, 
         for i, event in enumerate(p.imap_unordered(add_event_to_google_calendar, filtered_cal)):
             yield 'data: {}%\n\n'.format(math.floor(((i + 1) / len(filtered_cal)) * 100))
         p.close()
-
-    return import_generator
+    return filtered_cal
+    #return import_generator
+    #task = upload_cal.delay(filtered_cal)
+    #print(task.AsyncResult(task.request.id).state)
 
 
 def update_calendar(url, cal_id, filters, cred):
+    """
+    Updates an existing Google Calendar with the ID cal_id
+    :param url: The ICal URL
+    :param cal_id: Google Calendar ID
+    :param filters: A filter object
+    :param cred:
+    :return:
+    """
     ical_cal = get_ICal_calendar(url)
-
 
     filtered_cal = convert_ical_cal_to_gcal(
         ical_cal,
@@ -241,6 +250,3 @@ class FilterData:
 
 if __name__ == '__main__':
     test()
-
-
-
